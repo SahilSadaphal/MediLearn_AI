@@ -5,11 +5,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.utils import *
 from sentence_transformers import SentenceTransformer
 
-query = "What is the function of the heart?"
+query = "What is nerve?"
 query_embedding = model.encode("passage: " + query, normalize_embeddings=True)
 print(query_embedding)
 
-results = client.search(
+results = client.query_points(
     collection_name=collection_name,
     query_vector=query_embedding.tolist(),
     limit=5,

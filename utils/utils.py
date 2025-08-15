@@ -11,6 +11,11 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import VectorParams, Distance, PointStruct
 import uuid
 from typing import List, Dict, Tuple
+from langchain_groq import ChatGroq
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 logger = logging.getLogger("pdf_loader")
 # 🔐 Replace with your actual Qdrant Cloud values
@@ -140,3 +145,9 @@ def process_pdfs():
 
     load_embedd.save_processed(processed)
     logger.info("All new PDFs processed.")
+
+
+# ------------------------------------------------------------------------------------------------------
+llm = ChatGroq(
+    model="openai/gpt-oss-120b", temperature=0, api_key=os.getenv("GROQ_API")
+)
