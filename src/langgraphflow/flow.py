@@ -8,13 +8,15 @@ from langgraph.checkpoint.memory import InMemorySaver
 from pydantic import BaseModel, Field
 from langgraph.graph.message import add_messages
 from langchain_tavily import TavilySearch
+from utils.langgraph_utils import *
+import yaml
 
 import logging
 import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from utils.utils import *
+
 
 LOG_FILE = r"D:\MediLearn_AI\logs\langgraph_flow.log"
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
@@ -156,14 +158,29 @@ def search_web(state: State) -> State:
         "No information was available in knowledge base for user message doing web search"
     )
 
-    query = state.messages[-1].content
-    results = web_search.invoke(query)
+    try:
+        query = state.messages[-1].content
+        results = web_search.invoke(query)
 
-    if state.web_doc is None:
-        state.web_doc = []
+        # ✅ FIXED: Access the 'results' key which contains the list
+        web_docs = []
+        if isinstance(results, dict) and "results" in results:
+            for r in results[
+                "results"
+            ]:  # Access results['results'], not results directly
+                if isinstance(r, dict) and "content" in r:
+                    web_docs.append(r["content"])
 
-    state.web_doc.extend([r["content"] for r in results])
-    return state
+        # ✅ FIXED: Proper state update
+        current_web_docs = state.web_doc or []
+        updated_web_docs = current_web_docs + web_docs
+
+        logger.info(f"Found {len(web_docs)} web search results")
+        return state.model_copy(update={"web_doc": updated_web_docs})
+
+    except Exception as e:
+        logger.error(f"Error in web search: {e}")
+        return state.model_copy(update={"web_doc": []})
 
 
 def answer_with_web(state: State) -> State:
@@ -273,24 +290,24 @@ def main():
             print(f"Sorry, I encountered an error: {e}\n")
 
 
-def get_conversation_history(thread_id: str):
-    """Get conversation history for a specific thread"""
-    config = {"configurable": {"thread_id": thread_id}}
-    state = graph.get_state(config)
+# def get_conversation_history(thread_id: str):
+#     """Get conversation history for a specific thread"""
+#     config = {"configurable": {"thread_id": thread_id}}
+#     state = graph.get_state(config)
 
-    if state.values and "messages" in state.values:
-        return state.values["messages"]
-    return []
-
-
-def clear_conversation_history(thread_id: str):
-    """Clear conversation history for a specific thread"""
-    config = {"configurable": {"thread_id": thread_id}}
-    # Note: InMemorySaver doesn't have a direct clear method
-    # You might need to restart the application or use a different checkpointer
-    # for production use cases
-    pass
+#     if state.values and "messages" in state.values:
+#         return state.values["messages"]
+#     return []
 
 
-if __name__ == "__main__":
-    main()
+# def clear_conversation_history(thread_id: str):
+#     """Clear conversation history for a specific thread"""
+#     config = {"configurable": {"thread_id": thread_id}}
+#     # Note: InMemorySaver doesn't have a direct clear method
+#     # You might need to restart the application or use a different checkpointer
+#     # for production use cases
+#     pass
+
+
+# if __name__ == "__main__":
+#     main()

@@ -1,5 +1,7 @@
 from langchain_community.document_loaders import DirectoryLoader
 from langchain.document_loaders import PyPDFLoader
+
+# from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import json
 from sentence_transformers import SentenceTransformer
@@ -11,7 +13,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import VectorParams, Distance, PointStruct
 import uuid
 from typing import List, Dict, Tuple
-from langchain_groq import ChatGroq
+
 from dotenv import load_dotenv
 import os
 
@@ -145,9 +147,3 @@ def process_pdfs():
 
     load_embedd.save_processed(processed)
     logger.info("All new PDFs processed.")
-
-
-# ------------------------------------------------------------------------------------------------------
-llm = ChatGroq(
-    model="openai/gpt-oss-120b", temperature=0, api_key=os.getenv("GROQ_API")
-)
