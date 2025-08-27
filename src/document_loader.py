@@ -15,12 +15,12 @@ import logging
 
 # Logger
 import logging
-import os
 
-LOG_FILE = r"D:\MediLearn_AI\logs\loader.log"
-os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
-
-logger = logging.getLogger("pdf_loader")
+LOG_FILE = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs", "admin.log"))
+log_dir = os.path.dirname(LOG_FILE)
+if log_dir:
+    os.makedirs(log_dir, exist_ok=True)
+logger = logging.getLogger("admin")
 logger.setLevel(logging.INFO)
 
 # Only add handlers if not already set (prevents duplicate logs if rerun/imported)

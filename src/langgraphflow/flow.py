@@ -18,10 +18,11 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 
-LOG_FILE = r"D:\MediLearn_AI\logs\langgraph_flow.log"
-os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
-
-logger = logging.getLogger("pdf_loader")
+LOG_FILE = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs", "chatbot.log"))
+log_dir = os.path.dirname(LOG_FILE)
+if log_dir:
+    os.makedirs(log_dir, exist_ok=True)
+logger = logging.getLogger("chatbot")
 logger.setLevel(logging.INFO)
 
 # Only add handlers if not already set (prevents duplicate logs if rerun/imported)

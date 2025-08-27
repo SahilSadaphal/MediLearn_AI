@@ -1,8 +1,4 @@
 llm:
   model: "openai/gpt-oss-120b"
   temperature: 0
-  api_key_env: !ENV ${GROQ_API}
-llm:
-  model: "openai/gpt-oss-120b"
-  temperature: 0
-  api_key_env: !ENV ${GROQ_API}
+  api_key_env: ${GROQ_API}

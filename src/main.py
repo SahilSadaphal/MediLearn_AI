@@ -1,4 +1,4 @@
-from langgraphflow.flow import *
+from src.langgraphflow.flow import *
 from fastapi import (
     FastAPI,
     WebSocket,
@@ -15,7 +15,8 @@ from const.const import PATH_TO_DOCS
 from fastapi.responses import JSONResponse
 from pathlib import Path
 from datetime import datetime
-
+from dotenv import load_dotenv
+load_dotenv()
 app = FastAPI()
 from typing import Annotated
 
@@ -24,7 +25,6 @@ class UserQuery(BaseModel):
     user_msg: str
 
 
-from langgraphflow.flow import *
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import asyncio
 from pydantic import BaseModel
