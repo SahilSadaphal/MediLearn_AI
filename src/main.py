@@ -6,7 +6,11 @@ from fastapi import (
     UploadFile,
     File,
     HTTPException,
+    Depends
 )
+from typing import List,Annotated
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import secrets
 from utils.utils import *
 import asyncio
 from pydantic import BaseModel
@@ -19,10 +23,18 @@ from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI()
 from typing import Annotated
+from passlib.context import CryptContext
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+
+from fastapi.security import HTTPBasic
+security = HTTPBasic()
+
+SECRET_KEY = "supersecretkey"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
-class UserQuery(BaseModel):
-    user_msg: str
 
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -110,9 +122,23 @@ async def websocket_chat_endpoint(websocket: WebSocket):
 UPLOAD_DIR = Path(PATH_TO_DOCS)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
+db={'admin': 'password',
+    'user1': 'user1pass',
+    'password': 'mypassword'
+}
 
+def verify_user(credentials: Annotated[HTTPBasicCredentials, Depends(security)]) -> bool:
+    # Dummy verification for illustration; replace with real logic
+    try:
+        if credentials.username in db and db[credentials.username] == credentials.password:
+            return True
+        else:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
 @app.post("/upload-pdf/")
-async def upload_pdf(file: UploadFile = File(...)):
+async def upload_pdf(authorized: Annotated[bool, Depends(verify_user)],file: UploadFile = File(...)):
     """Upload a single PDF file only if it doesn't already exist"""
 
     # Validate file type
